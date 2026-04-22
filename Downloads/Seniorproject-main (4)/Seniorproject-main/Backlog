@@ -1,0 +1,167 @@
+Product Backlog
+
+Goals:
+Our goal is to create a secure, student-only marketplace that reduces the financial burden of attending college. In the long term, we aim to make books, electronic devices, and other essential resources more accessible and affordable for students.
+
+Functions/ Features:
+1. User Account Registration
+Students can create accounts using their school email and ID.
+
+2. User Authentication and Login
+Secure login and logout functions.
+
+3. Student Verification
+Verified college emails only can access the platform
+
+4. User Profile Management
+Users can view and edit profile information.
+
+5. Item Listing Creation
+Students can create and manage listings with a title, description, price, and category.
+
+6. Image Upload for Listings
+Users can upload images of their listings.
+
+7. Item Listing Management
+Users can modify or remove their own listings.
+
+8. Marketplace Browsing
+Users can browse all available listings.
+
+9. Search Function
+Users can search for listings.
+
+10. Category Filtering
+Users can filter listings by category.
+
+11. Price Filtering
+Users can filter listings by price range.
+
+12. Listings Detailed View
+Users can view full details of a listing.
+
+13. In-Platform Messaging
+Buyers and sellers can message each other securely.
+
+14. Saved Listings
+Users can save listings for later viewing.
+
+15. Reporting
+Users can report false or inappropriate listings.
+
+16. Admin Moderation Panel
+Admins can review reports, remove listings, and suspend users.
+
+17. Listing Status
+Listings can be marked as available, pending, or sold.
+
+18. Activity Notifications
+Users can receive notifications for messages and listing updates.
+
+19. Transaction History
+Users can view a history of their purchases and sales.
+
+20. Ratings and Reviews
+Buyers and sellers can leave ratings and reviews for each other.
+
+User Stories:
+
+Student / General User
+
+As a student, I want to create an account using my school email so only verified students can access the marketplace.
+
+As a student, I want to log in securely so my account and listings are protected.
+
+As a student, I want to log out so others cannot access my account on shared devices.
+
+As a student, I want to update my profile information so my contact details stay accurate.
+
+As a student, I want to change my password so I can keep my account secure.
+
+As a student, I want to reset my password if I forget it so I can regain access to my account.
+
+As a user, I want to receive notifications when I get a new message so I don’t miss conversations.
+
+As a user, I want to receive notifications when my listing status changes so I stay informed.
+
+As a user, I want to delete old conversations so my inbox stays organized.
+
+As a user, I want to report unsafe or inappropriate listings so the platform remains safe.
+
+Seller
+
+As a seller, I want to post items for sale so other students can see them.
+
+As a seller, I want to upload images to my listings so buyers can see the items.
+
+As a seller, I want to edit my listings so I can update item details.
+
+As a seller, I want to delete my listings so I can remove items that are no longer available.
+
+As a seller, I want to mark my listing as sold so other users know it is no longer available.
+
+As a seller, I want to mark my listing as pending so buyers know it is currently being negotiated.
+
+As a seller, I want to respond to buyer messages so we can coordinate the exchange.
+
+As a seller, I want to rate buyers after a transaction so reliable users are recognized.
+
+Buyer
+
+As a buyer, I want to browse all available listings so I can find items easily.
+
+As a buyer, I want to search listings by keyword so I can quickly locate specific items.
+
+As a buyer, I want to filter listings by category so results are more relevant.
+
+As a buyer, I want to filter listings by price range so I can stay within my budget.
+
+As a buyer, I want to message sellers so I can ask questions before purchasing.
+
+As a buyer, I want to view only available listings so I don’t waste time on sold items.
+
+As a buyer, I want to sort listings by price so I can compare items within my budget.
+
+As a buyer, I want to view recently posted listings so I can find the newest deals.
+
+As a buyer, I want to see listings from my own college first so exchanges are more convenient.
+
+As a buyer, I want to view seller ratings and reviews so I can decide who to trust.
+
+Admin
+
+As an admin, I want to review reported listings so I can remove content that violates rules.
+
+As an admin, I want to suspend users who repeatedly violate platform rules so the marketplace remains safe.
+
+Acceptance Criteria:
+Given a Farmingdale student with a valid school email, when they register, then the system verifies the email.
+
+
+Non-functional requirements:
+Security:
+Only Farmindale State College students with a valid school email address have access.
+Admins have some access to enforce punishments and suspensions.
+
+Hardware Requirements:
+The website should run on most, if not all, hardware. 
+Users must have access to the internet.
+
+Platforms:
+A website that is accessed through web browsers such as Chrome, Safari, etc.
+
+OS:
+Compatible with Windows, macOS, iOS, and Android.
+
+Capacity:
+Supports hundreds of registered users.  
+The platform can handle many concurrent users efficiently.
+
+Performance and Speed:
+Pages on the platform load quickly. 
+Search, filtering, and messaging are almost instant.
+
+Scalability:
+The platform is designed to expand to other colleges in the future. 
+Allows easy addition of new categories and features.
+

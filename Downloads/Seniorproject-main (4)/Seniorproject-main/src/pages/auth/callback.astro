@@ -1,0 +1,83 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { Card, CardContent } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+import Spinner from "@/components/starwind/spinner/Spinner.astro";
+---
+
+<Layout title="Verifying Email" authLayout={true} showFooter={false}>
+  <div class="min-h-[calc(100vh-80px)] flex items-center justify-center p-6 bg-muted">
+    <Card class="shadow-xl w-full max-w-120 text-center">
+      <CardContent class="py-12 px-8">
+        <div id="loadingState" class="flex flex-col items-center gap-4">
+          <Spinner size="lg" />
+          <h2 class="text-xl font-extrabold text-foreground">Verifying your email...</h2>
+          <p class="text-sm text-muted-foreground max-w-80">Please wait while we confirm your account.</p>
+        </div>
+
+        <div id="successState" class="hidden flex-col items-center gap-4">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-success">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <h2 class="text-xl font-extrabold text-foreground">Email Verified!</h2>
+          <p class="text-sm text-muted-foreground max-w-80">Your account is now active. Redirecting to the marketplace...</p>
+        </div>
+
+        <div id="errorState" class="hidden flex-col items-center gap-4">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-error">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="15" y1="9" x2="9" y2="15"></line>
+            <line x1="9" y1="9" x2="15" y2="15"></line>
+          </svg>
+          <h2 class="text-xl font-extrabold text-foreground">Verification Failed</h2>
+          <p id="errorMessage" class="text-sm text-muted-foreground max-w-80">Something went wrong. Please try again.</p>
+          <Button variant="primary" href="/login" class="mt-2">Back to Login</Button>
+        </div>
+      </CardContent>
+    </Card>
+  </div>
+</Layout>
+
+<script>
+  import { supabase } from "../../lib/supabase";
+
+  const loadingState = document.getElementById("loadingState") as HTMLElement;
+  const successState = document.getElementById("successState") as HTMLElement;
+  const errorState = document.getElementById("errorState") as HTMLElement;
+  const errorMessage = document.getElementById("errorMessage") as HTMLElement;
+
+  async function handleCallback() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get("code");
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) throw error;
+      } else if (accessToken) {
+        const { error } = await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken || "" });
+        if (error) throw error;
+      } else {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) { window.location.href = "/login"; return; }
+      }
+
+      loadingState.style.display = "none";
+      successState.classList.remove("hidden");
+      successState.style.display = "flex";
+
+      setTimeout(() => { window.location.href = "/marketplace"; }, 2000);
+    } catch (err: any) {
+      loadingState.style.display = "none";
+      errorState.classList.remove("hidden");
+      errorState.style.display = "flex";
+      errorMessage.textContent = err?.message || "Something went wrong. Please try again.";
+    }
+  }
+
+  handleCallback();
+</script>

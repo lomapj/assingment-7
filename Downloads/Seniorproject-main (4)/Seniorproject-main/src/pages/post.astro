@@ -1,0 +1,598 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Card, CardContent } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+import Label from "@/components/starwind/label/Label.astro";
+import Input from "@/components/starwind/input/Input.astro";
+import Textarea from "@/components/starwind/textarea/Textarea.astro";
+import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-select";
+import { Alert, AlertTitle, AlertDescription } from "@/components/starwind/alert";
+---
+
+<Layout title="Post an Item">
+  <div class="bg-muted min-h-screen pt-8 pb-16">
+    <div class="mx-auto max-w-250 px-6 lg:px-8">
+      <div class="mb-8">
+        <h1 class="text-3xl font-extrabold text-foreground tracking-tight">Create New Listing</h1>
+        <p class="text-base text-muted-foreground mt-1">Share your item with the Farmingdale community. Fill out the details below to get started.</p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-8 items-start">
+        <!-- Form Side -->
+        <form class="flex flex-col gap-6" id="listingForm">
+          <!-- Photos -->
+          <Card>
+            <CardContent class="pt-6">
+              <div class="flex justify-between items-baseline mb-4">
+                <h2 class="text-lg font-extrabold text-foreground">Item Photos</h2>
+                <span class="text-sm text-muted-foreground">Up to 5 high-quality photos</span>
+              </div>
+              <div class="grid grid-cols-5 gap-2 mb-4" id="existingPreviews"></div>
+              <div class="border-2 border-dashed border-border rounded-lg p-8 text-center cursor-pointer transition-colors hover:border-primary hover:bg-primary/5" id="uploadZone">
+                <input type="file" id="fileInput" multiple accept="image/*" hidden />
+                <div class="w-15 h-15 bg-card border border-border rounded-full mx-auto mb-4 flex items-center justify-center text-primary shadow-sm">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                </div>
+                <p class="text-base text-muted-foreground"><strong class="text-primary font-bold">Click to upload</strong> or drag and drop</p>
+                <p class="text-sm text-muted-foreground mt-1">PNG, JPG or WEBP (max. 10MB each)</p>
+              </div>
+              <div class="grid grid-cols-5 gap-2 mt-4" id="uploadPreviews"></div>
+            </CardContent>
+          </Card>
+
+          <!-- Details -->
+          <Card>
+            <CardContent class="pt-6">
+              <h2 class="text-lg font-extrabold text-foreground mb-4">Listing Details</h2>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div class="sm:col-span-2 space-y-1.5">
+                  <Label for="title">Title <span class="text-error">*</span></Label>
+                  <Input id="title" type="text" placeholder="e.g. Biology Textbook 12th Edition" maxlength="80" required />
+                  <div class="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>Be descriptive and include key details</span>
+                    <span id="titleCount">0/80</span>
+                  </div>
+                </div>
+
+                <div class="space-y-1.5">
+                  <Label for="category">Category <span class="text-error">*</span></Label>
+                  <NativeSelect id="category" required class="w-full">
+                    <NativeSelectOption value="" disabled selected>Select category</NativeSelectOption>
+                    <NativeSelectOption>Books</NativeSelectOption>
+                    <NativeSelectOption>Electronics</NativeSelectOption>
+                    <NativeSelectOption>Furniture</NativeSelectOption>
+                    <NativeSelectOption>Clothing</NativeSelectOption>
+                    <NativeSelectOption>Misc</NativeSelectOption>
+                  </NativeSelect>
+                </div>
+
+                <div class="space-y-1.5">
+                  <Label for="condition">Condition <span class="text-error">*</span></Label>
+                  <NativeSelect id="condition" required class="w-full">
+                    <NativeSelectOption value="" disabled selected>Select condition</NativeSelectOption>
+                    <NativeSelectOption>New</NativeSelectOption>
+                    <NativeSelectOption>Like New</NativeSelectOption>
+                    <NativeSelectOption>Good</NativeSelectOption>
+                    <NativeSelectOption>Fair</NativeSelectOption>
+                    <NativeSelectOption>Poor</NativeSelectOption>
+                  </NativeSelect>
+                </div>
+                
+                <div class="sm:col-span-2">
+                  <label for="giveawayToggle" class="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group" id="giveawayLabel">
+                    <input type="checkbox" id="giveawayToggle" class="sr-only peer" />
+                    <div class="w-11 h-6 bg-muted-foreground/20 rounded-full relative transition-colors peer-checked:bg-primary shrink-0">
+                      <div id="giveawayToggleButton" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"></div>
+                    </div>
+                    <div>
+                      <span class="text-sm font-bold text-foreground flex items-center gap-2">
+                        Give it away for free
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-teal-500/10 text-teal-600 border border-teal-200">Giveaway</span>
+                      </span>
+                      <span class="text-xs text-muted-foreground">List this item at $0 — help a fellow student out!</span>
+                    </div>
+                  </label>
+                </div>
+                
+                <div class="sm:col-span-2" id="offersToggleWrapper">
+                  <label for="offersToggle" class="flex items-center gap-3 p-4 rounded-xl border-2 border-dashed border-border bg-muted/50 cursor-pointer hover:border-primary/40 hover:bg-primary/5 transition-all group" id="offersLabel">
+                    <input type="checkbox" id="offersToggle" class="sr-only peer" />
+                    <div class="w-11 h-6 bg-muted-foreground/20 rounded-full relative transition-colors peer-checked:bg-violet-500 shrink-0">
+                      <div id="offersToggleButton" class="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform"></div>
+                    </div>
+                    <div>
+                      <span class="text-sm font-bold text-foreground flex items-center gap-2">
+                        Open to offers
+                        <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-violet-500/10 text-violet-600 border border-violet-200">Open to Offers</span>
+                      </span>
+                      <span class="text-xs text-muted-foreground">Let buyers suggest their own price — you can accept or decline.</span>
+                    </div>
+                  </label>
+                </div>
+                
+                <div class="space-y-1.5">
+                  <Label for="price">Price <span class="text-error">*</span></Label>
+                  <div class="relative flex items-center">
+                    <span class="absolute left-3 font-bold text-muted-foreground">$</span>
+                    <Input id="price" type="number" placeholder="0.00" step="0.01" min="0" class="pl-7" />
+                  </div>
+                </div>
+
+                <div class="space-y-1.5">
+                  <Label for="status">Initial Status</Label>
+                  <NativeSelect id="status" class="w-full">
+                    <NativeSelectOption value="available">Available</NativeSelectOption>
+                    <NativeSelectOption value="pending">Pending</NativeSelectOption>
+                  </NativeSelect>
+                </div>
+
+                <!-- Sale/Discount Section (edit mode only) -->
+                <div class="sm:col-span-2 hidden" id="discountSection">
+                  <div class="p-4 rounded-xl border-2 border-dashed border-orange-300 dark:border-orange-700 bg-orange-50 dark:bg-orange-950/30">
+                    <h3 class="text-sm font-bold text-orange-900 dark:text-orange-300 mb-3">🏷️ Put Item On Sale</h3>
+                    <div class="flex items-center gap-4 flex-wrap">
+                      <label class="flex items-center gap-2 text-sm text-orange-800 dark:text-orange-300 cursor-pointer font-semibold">
+                        <input type="checkbox" id="onSaleToggle" class="w-4 h-4 accent-orange-500" />
+                        Enable discount
+                      </label>
+                      <div id="discountInputWrapper" class="hidden flex items-center gap-2">
+                        <input type="number" id="discountPercent" min="5" max="90" placeholder="e.g. 20"
+                          class="w-20 border border-orange-300 dark:border-orange-600 rounded-lg px-2 py-1.5 text-sm bg-white dark:bg-card text-foreground focus:outline-none focus:border-orange-400" />
+                        <span class="text-sm text-orange-800 dark:text-orange-300 font-semibold">% off</span>
+                      </div>
+                    </div>
+                    <p id="salePricePreview" class="text-sm font-bold text-orange-600 dark:text-orange-400 mt-2 hidden"></p>
+                  </div>
+                </div>
+
+                <div class="sm:col-span-2 space-y-1.5">
+                  <Label for="description">Description <span class="text-error">*</span></Label>
+                  <Textarea id="description" rows={5} placeholder="Tell buyers more about your item. Include details like brand, model, usage, or any flaws." maxlength="1000" required />
+                  <div class="flex justify-between text-xs text-muted-foreground mt-1">
+                    <span>Provide as much detail as possible</span>
+                    <span id="descCount">0/1000</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div class="flex justify-end gap-4">
+            <Button variant="ghost" type="button" onclick="window.history.back()">Cancel</Button>
+            <Button variant="primary" type="submit" class="shadow-md">Publish Listing</Button>
+          </div>
+        </form>
+
+        <!-- Sidebar -->
+        <aside class="sticky top-24 flex flex-col gap-6">
+          <!-- Preview -->
+          <Card>
+            <CardContent class="pt-5">
+              <div class="flex justify-between items-center mb-3">
+                <span class="text-xs font-extrabold text-muted-foreground uppercase tracking-wider">Live Preview</span>
+                <span class="flex items-center gap-1.5 text-xs text-primary font-semibold">
+                  <span class="w-1.5 h-1.5 bg-primary rounded-full animate-pulse"></span>
+                  Updating...
+                </span>
+              </div>
+              <div class="border border-border rounded-xl overflow-hidden bg-card">
+                <div class="h-45 bg-muted flex items-center justify-center text-border" id="previewImg">
+                  <div class="text-center">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    <p class="text-xs font-semibold mt-1">Image preview</p>
+                  </div>
+                </div>
+                <div class="p-4 flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <span id="previewCondition" class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-primary bg-primary/10">Condition</span>
+                    <span id="previewOffersBadge" class="hidden items-center rounded-full px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide bg-violet-500/10 text-violet-600 border border-violet-200">Open to Offers</span>
+                  </div>
+                  <h3 class="text-base font-bold text-foreground leading-tight line-clamp-2" id="previewTitle">Your listing title here</h3>
+                  <div class="flex items-center justify-between mt-auto pt-3 border-t border-border">
+                    <span class="text-xl font-extrabold text-primary" id="previewPrice">$0</span>
+                    <span class="text-xs text-muted-foreground">No ratings</span>
+                    <span class="text-xs font-semibold text-muted-foreground" id="previewSellerName">You</span>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <!-- Tips -->
+          <Alert variant="warning" class="bg-amber-50 border-amber-200">
+            <AlertTitle class="text-amber-900 text-sm">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-600"><path d="M12 2v4"></path><path d="m4.93 4.93 2.83 2.83"></path><path d="M2 12h4"></path><path d="m4.93 19.07 2.83-2.83"></path><path d="M12 22v-4"></path><path d="m19.07 19.07-2.83-2.83"></path><path d="M22 12h-4"></path><path d="m19.07 4.93-2.83 2.83"></path><path d="M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0z"></path></svg>
+              Quick Selling Tips
+            </AlertTitle>
+            <AlertDescription>
+              <ul class="space-y-3 mt-3">
+                {[
+                  { num: "1", tip: "<strong class='text-amber-950 font-extrabold'>Use good lighting.</strong> Bright, clear photos sell items 3x faster." },
+                  { num: "2", tip: "<strong class='text-amber-950 font-extrabold'>Set a fair price.</strong> Check similar listings to see going rates." },
+                  { num: "3", tip: "<strong class='text-amber-950 font-extrabold'>Be responsive.</strong> Buyers appreciate quick answers to questions." },
+                ].map((t) => (
+                  <li class="flex gap-3">
+                    <span class="w-5 h-5 bg-white border border-amber-600 text-amber-600 rounded-full flex items-center justify-center text-[0.7rem] font-extrabold shrink-0">{t.num}</span>
+                    <p class="text-sm text-amber-900 leading-relaxed" set:html={t.tip} />
+                  </li>
+                ))}
+              </ul>
+            </AlertDescription>
+          </Alert>
+        </aside>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .preview-thumb { position: relative; aspect-ratio: 1; border-radius: 0.5rem; overflow: hidden; border: 1px solid var(--border); }
+  .preview-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .thumb-remove { position: absolute; top: 4px; right: 4px; width: 22px; height: 22px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; font-size: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+  .thumb-remove:hover { background: var(--color-red-500); }
+</style>
+
+<script>
+  import { supabase } from "../lib/supabase";
+  import { uploadListingImage, fetchListing, updateListing } from "../lib/api";
+
+  const uploadZone = document.getElementById("uploadZone");
+  const fileInput = document.getElementById("fileInput") as HTMLInputElement;
+  const titleInput = document.getElementById("title") as HTMLInputElement;
+  const categoryInput = document.getElementById("category") as HTMLSelectElement;
+  const conditionInput = document.getElementById("condition") as HTMLSelectElement;
+  const priceInput = document.getElementById("price") as HTMLInputElement;
+  const descriptionInput = document.getElementById("description") as HTMLTextAreaElement;
+  
+  const giveawayToggle = document.getElementById("giveawayToggle") as HTMLInputElement;
+  const giveawayLabel = document.getElementById("giveawayLabel")!;
+  const priceField = priceInput.closest(".space-y-1\\.5") as HTMLElement;
+  
+  const offersToggle = document.getElementById("offersToggle") as HTMLInputElement;
+  const offersLabel = document.getElementById("offersLabel")!;
+  const offersWrapper = document.getElementById("offersToggleWrapper")!;
+  
+  const previewTitle = document.getElementById("previewTitle");
+  const previewPrice = document.getElementById("previewPrice");
+  const previewCondition = document.getElementById("previewCondition");
+  const previewImg = document.getElementById("previewImg")!;
+  const previewSellerName = document.getElementById("previewSellerName");
+  
+  (async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user && previewSellerName) {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", user.id)
+          .single();
+        if (profile?.full_name) {
+          previewSellerName.textContent = profile.full_name.split(" ")[0];
+        }
+      }
+    } catch (_) {}
+  })();
+
+  const titleCount = document.getElementById("titleCount");
+  const descCount = document.getElementById("descCount");
+
+  let selectedFiles: File[] = [];
+  let keptImages: string[] = [];
+  const editId = new URLSearchParams(window.location.search).get("edit");
+  
+  const PREVIEW_GRADIENTS: Record<string, string> = {
+    Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
+    Electronics: "linear-gradient(135deg,#1e3c72,#2a5298)",
+    Furniture: "linear-gradient(135deg,#a0522d,#cd853f)",
+    Clothing: "linear-gradient(135deg,#457b9d,#1d3557)",
+    Misc: "linear-gradient(135deg,#ef476f,#f78c6b)",
+  };
+  
+  const PREVIEW_ICONS: Record<string, string> = {
+    Books: "\u{1F4D7}",
+    Electronics: "\u{1F4BB}",
+    Furniture: "\u{1FA91}",
+    Clothing: "\u{1F9E5}",
+    Misc: "\u{1F4E6}",
+  };
+  
+  function updatePreview() {
+    const category = categoryInput?.value || "";
+    const gradient = PREVIEW_GRADIENTS[category] || "";
+    const icon = PREVIEW_ICONS[category] || "";
+    
+    if (keptImages.length > 0) {
+      previewImg.style.background = "";
+      previewImg.innerHTML = `<img src="${keptImages[0]}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`;
+    }
+    else if (selectedFiles.length > 0) {
+      previewImg.style.background = "";
+      previewImg.innerHTML = `<img src="${URL.createObjectURL(selectedFiles[0])}" style="width:100%;height:100%;object-fit:cover;" alt="preview" />`;
+    }
+    else if (gradient) {
+      previewImg.style.background = gradient;
+      previewImg.innerHTML = `<span class="text-5xl">${icon}</span>`;
+    }
+    else {
+      previewImg.style.background = "";
+      previewImg.innerHTML = `<div class="text-center"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto"><rect x="3" y="3" width="18" height="18" rx="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg><p class="text-xs font-semibold mt-1">Image preview</p></div>`;
+    }
+  }
+
+  function renderExistingThumbs() {
+    const container = document.getElementById("existingPreviews")!;
+    container.innerHTML = keptImages.map((url, i) => `
+      <div class="preview-thumb"><img src="${url}" alt="existing" /><button type="button" class="thumb-remove existing-remove" data-index="${i}">&times;</button></div>
+    `).join("");
+    container.querySelectorAll<HTMLButtonElement>(".existing-remove").forEach(btn => {
+      btn.addEventListener("click", () => {
+        keptImages.splice(parseInt(btn.dataset.index ?? "0"), 1);
+        renderExistingThumbs();
+        updatePreview();
+      });
+    });
+  }
+
+  function renderThumbs() {
+    const container = document.getElementById("uploadPreviews")!;
+    container.innerHTML = "";
+    selectedFiles.forEach((file, i) => {
+      const url = URL.createObjectURL(file);
+      const div = document.createElement("div");
+      div.className = "preview-thumb";
+      div.innerHTML = `<img src="${url}" alt="preview" /><button type="button" class="thumb-remove" data-index="${i}" aria-label="Remove">&times;</button>`;
+      container.appendChild(div);
+    });
+    container.querySelectorAll(".thumb-remove").forEach(btn => {
+      btn.addEventListener("click", () => {
+        selectedFiles.splice(parseInt((btn as HTMLElement).dataset.index ?? "0"), 1);
+        renderThumbs();
+        updatePreview();
+      });
+    });
+  }
+
+  function addFiles(newFiles: File[]) {
+    const toAdd = newFiles.filter(f => f.type.startsWith("image/") && f.size <= 10 * 1024 * 1024).slice(0, 5 - keptImages.length - selectedFiles.length);
+    selectedFiles = [...selectedFiles, ...toAdd];
+    renderThumbs();
+    updatePreview();
+  }
+
+  uploadZone?.addEventListener("click", () => fileInput?.click());
+  uploadZone?.addEventListener("dragover", (e) => { e.preventDefault(); uploadZone.classList.add("border-primary", "bg-primary/5"); });
+  uploadZone?.addEventListener("dragleave", () => { uploadZone.classList.remove("border-primary", "bg-primary/5"); });
+  uploadZone?.addEventListener("drop", (e) => { e.preventDefault(); uploadZone.classList.remove("border-primary", "bg-primary/5"); if (e.dataTransfer?.files.length) addFiles(Array.from(e.dataTransfer.files)); });
+  fileInput?.addEventListener("change", () => { if (fileInput.files) addFiles(Array.from(fileInput.files)); fileInput.value = ""; });
+
+  titleInput?.addEventListener("input", () => {
+    if (previewTitle) previewTitle.textContent = titleInput.value || "Your listing title here";
+    if (titleCount) titleCount.textContent = `${titleInput.value.length}/80`;
+  });
+  categoryInput?.addEventListener("change", () => { updatePreview(); });
+  conditionInput?.addEventListener("change", () => {
+    if (previewCondition) {
+      previewCondition.textContent = conditionInput.value || "Condition";
+    }
+  });
+  priceInput?.addEventListener("input", () => {
+    const value = parseFloat(priceInput.value) || 0;
+    if (previewPrice) {
+      if (value === 0 && giveawayToggle.checked) {
+        previewPrice.textContent = "FREE";
+        previewPrice.classList.remove("text-primary");
+        previewPrice.classList.add("text-teal-600");
+      }
+      else {
+        previewPrice.textContent = value === 0 ? "$0" : `$${value.toLocaleString()}`;
+        previewPrice.classList.add("text-primary");
+        previewPrice.classList.remove("text-teal-600");
+      }
+    }
+  });
+  descriptionInput?.addEventListener("input", () => { if (descCount) descCount.textContent = `${descriptionInput.value.length}/1000`; });
+  
+  offersToggle.addEventListener("change", () => {
+    const previewBadge = document.getElementById("previewOffersBadge");
+    
+    if (offersToggle.checked) {
+      document.getElementById("offersToggleButton")?.classList.add("translate-x-5");
+      offersLabel.classList.remove("border-border", "bg-muted/50");
+      offersLabel.classList.add("border-violet-400", "bg-violet-500/5");
+      
+      if (previewBadge) {
+        previewBadge.classList.remove("hidden");
+      }
+    }
+    else {
+      document.getElementById("offersToggleButton")?.classList.remove("translate-x-5");
+      offersLabel.classList.add("border-border", "bg-muted/50");
+      offersLabel.classList.remove("border-violet-400", "bg-violet-500/5");
+      
+      if (previewBadge) {
+        previewBadge.classList.add("hidden");
+      }
+    }
+  });
+  
+  giveawayToggle.addEventListener("change", () => {
+    const previewBadge = document.getElementById("previewOffersBadge");
+    
+    if (giveawayToggle.checked) {
+      document.getElementById("giveawayToggleButton")?.classList.add("translate-x-5");
+      document.getElementById("offersToggleButton")?.classList.remove("translate-x-5");
+      previewBadge?.classList.add("hidden");
+      priceInput.value = "0";
+      priceInput.disabled = true;
+      priceInput.classList.add("opacity-50");
+      giveawayLabel.classList.remove("border-border", "bg-muted/50");
+      giveawayLabel.classList.add("border-teal-400", "bg-teal-500/5");
+      
+      offersToggle.checked = false;
+      offersToggle.disabled = true;
+      offersWrapper.classList.add("opacity-50", "pointer-events-none");
+      offersLabel.classList.add("border-border", "bg-muted/50");
+      offersLabel.classList.remove("border-violet-400", "bg-violet-500/5");
+      if (previewPrice) {
+        previewPrice.textContent = "FREE";
+      }
+      if (previewPrice) {
+        previewPrice.classList.remove("text-primary");
+        previewPrice.classList.add("text-teal-600");
+      }
+    }
+    else {
+      document.getElementById("giveawayToggleButton")?.classList.remove("translate-x-5");
+      priceInput.value = "";
+      priceInput.disabled = false;
+      priceInput.classList.remove("opacity-50");
+      giveawayLabel.classList.add("border-border", "bg-muted/50");
+      giveawayLabel.classList.remove("border-teal-400", "bg-teal-500/5");
+      
+      offersToggle.disabled = false;
+      offersWrapper.classList.remove("opacity-50", "pointer-events-none");
+      if (previewPrice) {
+        previewPrice.textContent = "$0";
+      }
+      if (previewPrice) {
+        previewPrice.classList.add("text-primary");
+        previewPrice.classList.remove("text-teal-600");
+      }
+    }
+  });
+
+  const onSaleToggle = document.getElementById("onSaleToggle") as HTMLInputElement;
+  const discountInputWrapper = document.getElementById("discountInputWrapper")!;
+  const discountPercentInput = document.getElementById("discountPercent") as HTMLInputElement;
+  const salePricePreview = document.getElementById("salePricePreview")!;
+  let lockedOriginalPrice: number | null = null;
+
+  onSaleToggle?.addEventListener("change", () => {
+    if (onSaleToggle.checked) {
+      lockedOriginalPrice = parseFloat(priceInput.value);
+      priceInput.readOnly = true;
+      priceInput.classList.add("opacity-50");
+      discountInputWrapper.classList.remove("hidden");
+    } else {
+      discountInputWrapper.classList.add("hidden");
+      salePricePreview.classList.add("hidden");
+      discountPercentInput.value = "";
+      if (lockedOriginalPrice !== null) priceInput.value = lockedOriginalPrice.toString();
+      lockedOriginalPrice = null;
+      priceInput.readOnly = false;
+      priceInput.classList.remove("opacity-50");
+    }
+  });
+
+  discountPercentInput?.addEventListener("input", () => {
+    const pct = parseInt(discountPercentInput.value);
+    const basePrice = lockedOriginalPrice!;
+    if (!isNaN(pct) && basePrice && pct >= 5 && pct <= 90) {
+      const salePrice = (basePrice * (1 - pct / 100)).toFixed(2);
+      salePricePreview.textContent = `Sale price: $${salePrice} (was $${basePrice.toFixed(2)})`;
+      salePricePreview.classList.remove("hidden");
+      priceInput.value = salePrice;
+    }
+  });
+
+  const form = document.getElementById("listingForm") as HTMLFormElement;
+  const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+
+  // Edit Listing
+  if (editId) {
+    document.querySelector("h1")!.textContent = "Edit Listing";
+    submitBtn.textContent = "Save Changes";
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) { window.location.href = "/login"; return; }
+      try {
+        const listing = await fetchListing(editId);
+        if (listing.user_id !== user.id) { window.location.href = "/profile"; return; }
+        titleInput.value = listing.title;
+        categoryInput.value = listing.category;
+        conditionInput.value = listing.condition;
+        priceInput.value = listing.price.toString();
+        lockedOriginalPrice = listing.original_price ?? listing.price;
+        if (listing.price === 0) {
+          giveawayToggle.checked = true;
+          giveawayToggle.dispatchEvent(new Event("change"));
+        }
+        if (listing.open_to_offers) {
+          offersToggle.checked = true;
+          offersToggle.dispatchEvent(new Event("change"));
+        }
+        (document.getElementById("status") as HTMLSelectElement).value = listing.status;
+        descriptionInput.value = listing.description;
+        titleCount!.textContent = `${listing.title.length}/80`;
+        descCount!.textContent = `${listing.description.length}/1000`;
+        previewTitle!.textContent = listing.title;
+        previewCondition!.textContent = listing.condition;
+        previewPrice!.textContent = `$${listing.price.toLocaleString()}`;
+        keptImages = listing.images ? [...listing.images] : [];
+        renderExistingThumbs();
+        updatePreview();
+        document.getElementById("discountSection")?.classList.remove("hidden");
+        if (listing.on_sale) {
+          onSaleToggle.checked = true;
+          discountInputWrapper.classList.remove("hidden");
+          if (listing.discount_percent) {
+            discountPercentInput.value = listing.discount_percent.toString();
+            if (listing.original_price) {
+              const sp = (listing.original_price * (1 - listing.discount_percent / 100)).toFixed(2);
+              salePricePreview.textContent = `Sale price: $${sp} (was $${listing.original_price.toFixed(2)})`;
+              salePricePreview.classList.remove("hidden");
+            }
+          }
+        }
+      } catch { window.location.href = "/profile"; }
+    })();
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const title = titleInput.value.trim();
+    const category = categoryInput.value;
+    const condition = conditionInput.value;
+    const price = parseFloat(priceInput.value);
+    const status = (document.getElementById("status") as HTMLSelectElement).value;
+    const description = descriptionInput.value.trim();
+    
+    if (!title || !category || !condition || isNaN(price) || price < 0 || !description) { alert("Please fill in all required fields."); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = editId ? "Saving..." : "Publishing...";
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { alert("You must be logged in."); submitBtn.disabled = false; submitBtn.textContent = editId ? "Save Changes" : "Publish Listing"; return; }
+
+    const imageUrls: string[] = [];
+    for (const file of selectedFiles) {
+      try {
+        const url = await uploadListingImage(file, user.id);
+        imageUrls.push(url);
+      } catch (err: any) {
+        alert(`Image upload failed: ${err.message}`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = editId ? "Save Changes" : "Publish Listing";
+        return;
+      }
+    }
+
+    if (editId) {
+      try {
+        await updateListing(editId, { title, category, condition, price, status, description, images: [...keptImages, ...imageUrls], open_to_offers: offersToggle.checked, on_sale: onSaleToggle?.checked || false, discount_percent: parseInt(discountPercentInput?.value || "0") || 0, original_price: onSaleToggle?.checked ? (lockedOriginalPrice ?? price) : null });
+        window.location.href = `/item?id=${editId}`;
+      } catch (err: any) {
+        alert(`Failed to save: ${err.message}`);
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Save Changes";
+      }
+    } else {
+      const sellerName = user.user_metadata?.full_name || user.email || "Seller";
+      const { error } = await supabase.from("listings").insert({ user_id: user.id, title, category, condition, price, status, description, images: imageUrls, seller_name: sellerName, open_to_offers: offersToggle.checked });
+      if (error) { alert(`Failed to publish: ${error.message}`); submitBtn.disabled = false; submitBtn.textContent = "Publish Listing"; return; }
+      window.location.href = "/marketplace";
+    }
+  });
+</script>

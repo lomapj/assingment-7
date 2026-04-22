@@ -1,0 +1,28 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+---
+
+<Layout title="Verify Your Email" authLayout={true} showFooter={false}>
+  <div class="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 bg-muted">
+    <div class="w-full max-w-120">
+      <Card class="shadow-xl text-center">
+        <CardHeader>
+          <div class="text-5xl mb-2">&#9993;</div>
+          <CardTitle class="text-2xl font-extrabold">Check Your Email</CardTitle>
+          <CardDescription class="leading-relaxed">
+            We sent a verification link to your <strong>@farmingdale.edu</strong> address.
+            Click the link in your email to activate your account.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p class="text-sm text-muted-foreground mb-4">
+            Didn't receive it? Check your spam folder or wait a minute and try again.
+          </p>
+          <Button variant="outline" href="/login">Back to Login</Button>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
+</Layout>

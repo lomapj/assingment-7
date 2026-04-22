@@ -1,0 +1,140 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+import Label from "@/components/starwind/label/Label.astro";
+import Input from "@/components/starwind/input/Input.astro";
+import Separator from "@/components/starwind/separator/Separator.astro";
+import { Alert, AlertDescription } from "@/components/starwind/alert";
+---
+
+<Layout title="Log In" authLayout={true} showFooter={true}>
+  <div class="min-h-[calc(100vh-80px)] flex items-center justify-center p-4 sm:p-8 bg-muted">
+    <div class="w-full max-w-110">
+      <Card class="shadow-xl mb-6">
+        <CardHeader class="text-center pb-2">
+          <CardTitle class="text-2xl font-extrabold tracking-tight">Welcome Back</CardTitle>
+          <CardDescription>Sign in to your campus account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Alert id="successBanner" variant="success" class="hidden mb-4">
+            <AlertDescription class="text-sm font-medium">Password updated! You can now sign in with your new password.</AlertDescription>
+          </Alert>
+          <Alert id="errorBanner" variant="error" class="hidden mb-4">
+            <AlertDescription id="errorText" class="text-sm font-medium"></AlertDescription>
+          </Alert>
+
+          <form class="flex flex-col" id="loginForm" novalidate>
+            <div class="space-y-1.5 mb-4">
+              <Label for="email">FSC Student Email</Label>
+              <Input id="email" type="email" placeholder="name@farmingdale.edu" autocomplete="email" required />
+            </div>
+
+            <div class="space-y-1.5 mb-4">
+              <div class="flex justify-between items-center">
+                <Label for="password">Password</Label>
+                <a href="/auth/forgot-password" class="text-xs font-semibold text-primary hover:underline">Forgot?</a>
+              </div>
+              <div class="relative">
+                <Input id="password" type="password" placeholder="••••••••" autocomplete="current-password" class="pr-12" required />
+                <button type="button" class="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors p-1" id="togglePw" aria-label="Toggle password visibility">
+                  <svg id="eyeOpen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg id="eyeOff" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <Button variant="primary" type="submit" class="w-full mt-2" id="submitBtn">Sign In</Button>
+
+            <div class="relative my-6">
+              <Separator />
+              <span class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-3 text-sm text-muted-foreground">New to the marketplace?</span>
+            </div>
+
+            <Button variant="outline" href="/signup" class="w-full">Create Student Account</Button>
+          </form>
+        </CardContent>
+      </Card>
+
+      <p class="text-center text-sm text-muted-foreground">
+        By signing in, you agree to our <a href="#" class="font-semibold text-foreground hover:underline">Terms</a> and <a href="#" class="font-semibold text-foreground hover:underline">Privacy Policy</a>
+      </p>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { isValidStudentEmail, supabase } from "../lib/supabase";
+
+  const form = document.getElementById("loginForm") as HTMLFormElement;
+  const errorBanner = document.getElementById("errorBanner") as HTMLElement;
+  const errorText = document.getElementById("errorText") as HTMLElement;
+  const submitBtn = document.getElementById("submitBtn") as HTMLButtonElement;
+
+  function showError(msg: string) {
+    errorText.textContent = msg;
+    errorBanner.classList.remove("hidden");
+  }
+
+  function hideError() {
+    errorBanner.classList.add("hidden");
+  }
+
+  // Toggle password visibility
+  const toggleBtn = document.getElementById("togglePw");
+  const pwInput = document.getElementById("password") as HTMLInputElement | null;
+  const eyeOpen = document.getElementById("eyeOpen") as HTMLElement | null;
+  const eyeOff = document.getElementById("eyeOff") as HTMLElement | null;
+
+  toggleBtn?.addEventListener("click", () => {
+    if (!pwInput) return;
+    const showing = pwInput.type === "text";
+    pwInput.type = showing ? "password" : "text";
+    if (eyeOpen) eyeOpen.style.display = showing ? "" : "none";
+    if (eyeOff) eyeOff.style.display = showing ? "none" : "";
+  });
+
+  if (new URLSearchParams(window.location.search).get("reset") === "success") {
+    document.getElementById("successBanner")?.classList.remove("hidden");
+  }
+
+  // Check if already logged in
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      window.location.href = "/marketplace";
+    }
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    hideError();
+
+    const email = (document.getElementById("email") as HTMLInputElement).value.trim().toLowerCase();
+    const password = (document.getElementById("password") as HTMLInputElement).value;
+
+    if (!email) { showError("Please enter your email address."); return; }
+    if (!isValidStudentEmail(email)) { showError("You must use a @farmingdale.edu email address."); return; }
+    if (!password) { showError("Please enter your password."); return; }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Signing in...";
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      showError(error.message);
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Sign In";
+      return;
+    }
+
+    window.location.href = "/marketplace";
+  });
+</script>

@@ -1,0 +1,618 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { Card, CardContent } from "@/components/starwind/card";
+import Button from "@/components/starwind/button/Button.astro";
+import Badge from "@/components/starwind/badge/Badge.astro";
+import { Avatar, AvatarFallback } from "@/components/starwind/avatar";
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/starwind/breadcrumb";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogClose } from "@/components/starwind/dialog";
+import { NativeSelect, NativeSelectOption } from "@/components/starwind/native-select";
+import Textarea from "@/components/starwind/textarea/Textarea.astro";
+---
+
+<Layout title="Item Detail">
+  <div class="bg-muted min-h-screen pb-16">
+    <div class="mx-auto max-w-7xl px-6 lg:px-8 pt-6">
+      <!-- Breadcrumb -->
+      <Breadcrumb class="mb-6">
+        <BreadcrumbList class="text-sm">
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/marketplace">Marketplace</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/marketplace" id="breadcrumbCategory">Category</BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage class="font-bold" id="breadcrumbTitle">Loading...</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
+      <!-- Loading state -->
+      <div id="loadingState" class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 animate-pulse">
+        <div class="flex flex-col gap-4">
+          <div class="aspect-4/3 rounded-xl bg-muted border border-border"></div>
+          <div class="flex gap-3">
+            <div class="flex-1 aspect-square rounded-lg bg-muted border border-border"></div>
+            <div class="flex-1 aspect-square rounded-lg bg-muted border border-border"></div>
+            <div class="flex-1 aspect-square rounded-lg bg-muted border border-border"></div>
+            <div class="flex-1 aspect-square rounded-lg bg-muted border border-border"></div>
+          </div>
+        </div>
+        <div class="flex flex-col gap-5">
+          <div class="h-6 w-40 bg-muted rounded"></div>
+          <div class="h-10 w-3/4 bg-muted rounded"></div>
+          <div class="h-8 w-32 bg-muted rounded"></div>
+          <div class="h-24 bg-muted rounded-xl"></div>
+          <div class="h-32 bg-muted rounded"></div>
+          <div class="h-20 bg-muted rounded-xl"></div>
+        </div>
+      </div>
+
+      <!-- Item content (hidden until loaded) -->
+      <div id="itemContent" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+        <!-- Left: Gallery -->
+        <div class="flex flex-col gap-4">
+          <div class="aspect-4/3 rounded-xl flex items-center justify-center shadow-xl border border-border overflow-hidden" id="mainImage">
+          </div>
+          <div class="flex gap-3" id="thumbStrip"></div>
+        </div>
+
+        <!-- Right: Content -->
+        <div class="flex flex-col gap-5">
+          <div class="flex items-center justify-between">
+            <div class="flex gap-2" id="badgeRow"></div>
+            <button type="button" class="save-btn w-11 h-11 rounded-full border border-border bg-card flex items-center justify-center text-muted-foreground hover:border-error hover:text-error transition-colors" id="favBtn" aria-label="Save listing">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </button>
+          </div>
+
+          <h1 class="text-3xl lg:text-4xl font-extrabold text-foreground tracking-tight" id="itemTitle"></h1>
+
+          <div class="flex items-center gap-4">
+            <span class="text-3xl font-extrabold text-primary" id="itemPrice"></span>
+            <span id="itemStatusBadge"></span>
+          </div>
+
+          <Card size="sm">
+            <CardContent class="grid grid-cols-3 gap-4">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xs font-semibold text-muted-foreground uppercase">Condition</span>
+                <span class="text-sm font-bold text-foreground" id="itemCondition"></span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xs font-semibold text-muted-foreground uppercase">Posted</span>
+                <span class="text-sm font-bold text-foreground" id="itemDate"></span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-xs font-semibold text-muted-foreground uppercase">Category</span>
+                <span class="text-sm font-bold text-foreground" id="itemCategory"></span>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div class="mt-2">
+            <h2 class="text-base font-extrabold text-foreground mb-2">Description</h2>
+            <p class="text-base text-muted-foreground leading-relaxed" id="itemDescription"></p>
+          </div>
+
+          <!-- Seller Card -->
+          <Card size="sm" class="shadow-md">
+            <CardContent class="flex items-center justify-between gap-4">
+              <a id="sellerProfileLink" href="/user" class="flex items-center gap-3 no-underline text-inherit hover:opacity-80 transition-opacity">
+                <Avatar size="lg" variant="primary" class="w-14 h-14 text-xl shadow-md"><AvatarFallback class="bg-primary text-primary-foreground font-extrabold" id="sellerInitials">?</AvatarFallback></Avatar>
+                <div class="flex flex-col gap-0.5">
+                  <span class="text-base font-extrabold text-foreground hover:text-primary transition-colors" id="sellerName">Seller</span>
+                  <span class="text-sm text-muted-foreground" id="sellerRating"></span>
+                </div>
+              </a>
+              <Button variant="outline" size="sm" href="/messages" id="sellerCardMsgBtn">Message</Button>
+            </CardContent>
+          </Card>
+
+          <!-- Actions -->
+          <div class="grid grid-cols-[1fr_auto] gap-3 mt-2">
+            <Button variant="primary" href="/messages" id="actionMsgBtn" class="gap-2 font-extrabold">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+              Message Seller
+            </Button>
+            <Dialog>
+              <DialogTrigger class="inline-flex items-center justify-center border border-border text-muted-foreground hover:text-error hover:border-error gap-1.5 rounded-md px-4 py-2 text-sm font-medium transition-colors">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+                Report
+              </DialogTrigger>
+              <DialogContent class="max-w-120">
+                <DialogHeader>
+                  <DialogTitle>Report Listing</DialogTitle>
+                  <DialogDescription>Help us keep our community safe. Why are you reporting this?</DialogDescription>
+                </DialogHeader>
+                <div class="space-y-4 py-4">
+                  <div class="space-y-1.5">
+                    <label class="text-sm font-semibold text-foreground">Reason</label>
+                    <NativeSelect id="reportReason">
+                      <NativeSelectOption>Inappropriate content</NativeSelectOption>
+                      <NativeSelectOption>Suspected scam</NativeSelectOption>
+                      <NativeSelectOption>Wrong category</NativeSelectOption>
+                      <NativeSelectOption>Prohibited item</NativeSelectOption>
+                      <NativeSelectOption>Other</NativeSelectOption>
+                    </NativeSelect>
+                  </div>
+                  <div class="space-y-1.5">
+                    <label class="text-sm font-semibold text-foreground">Details</label>
+                    <Textarea id="reportDetails" placeholder="Additional information..." rows={3} />
+                  </div>
+                </div>
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="secondary">Cancel</Button>
+                  </DialogClose>
+                  <Button variant="error" id="reportSubmitBtn">Submit Report</Button>
+                </DialogFooter>
+                <div id="reportStatus" class="px-6 pb-4"></div>
+              </DialogContent>
+            </Dialog>
+          </div>
+        </div>
+      </div>
+
+      <!-- Review Section (sold items only) -->
+      <div id="reviewSection" class="hidden mt-12">
+        <h2 class="text-2xl font-extrabold text-foreground mb-6">Seller Reviews</h2>
+        <div id="reviewForm" class="hidden mb-8 p-6 rounded-xl border border-border bg-card">
+          <h3 class="text-lg font-bold text-foreground mb-4">Leave a Review</h3>
+          <div class="flex items-center gap-1 mb-4" id="starSelector">
+            <button type="button" class="star-btn text-2xl text-muted-foreground hover:text-amber-400 transition-colors" data-star="1">&#9733;</button>
+            <button type="button" class="star-btn text-2xl text-muted-foreground hover:text-amber-400 transition-colors" data-star="2">&#9733;</button>
+            <button type="button" class="star-btn text-2xl text-muted-foreground hover:text-amber-400 transition-colors" data-star="3">&#9733;</button>
+            <button type="button" class="star-btn text-2xl text-muted-foreground hover:text-amber-400 transition-colors" data-star="4">&#9733;</button>
+            <button type="button" class="star-btn text-2xl text-muted-foreground hover:text-amber-400 transition-colors" data-star="5">&#9733;</button>
+            <span class="ml-2 text-sm text-muted-foreground" id="starLabel">Select a rating</span>
+          </div>
+          <Textarea id="reviewComment" placeholder="Write a comment (optional)..." rows={3} class="mb-4" />
+          <Button variant="primary" id="reviewSubmitBtn">Submit Review</Button>
+          <div id="reviewStatus" class="mt-3"></div>
+        </div>
+        <div id="reviewsList" class="space-y-4"></div>
+        <p id="noReviews" class="hidden text-muted-foreground">No reviews yet.</p>
+      </div>
+
+      <!-- Error state -->
+      <div id="errorState" class="hidden text-center py-20">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="mx-auto text-muted-foreground mb-4"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        <h3 class="text-xl font-bold text-foreground mb-2">Listing not found</h3>
+        <p class="text-muted-foreground mb-6">This listing may have been removed or doesn't exist.</p>
+        <a href="/marketplace" class="inline-flex items-center gap-2 text-primary font-bold hover:underline">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          Back to Marketplace
+        </a>
+      </div>
+    </div>
+  </div>
+</Layout>
+
+<script>
+  import { supabase } from "../lib/supabase";
+  import { toast } from "@/components/starwind/toast";
+  import {
+    fetchListing,
+    fetchSellerRating,
+    fetchListingReviews,
+    submitReview,
+    submitReport,
+    hasReported,
+    hasReviewed,
+  } from "../lib/api";
+
+  const CATEGORY_GRADIENTS: Record<string, string> = {
+    Books: "linear-gradient(135deg,#2d6a4f,#52b788)",
+    Electronics: "linear-gradient(135deg,#1e3c72,#2a5298)",
+    Furniture: "linear-gradient(135deg,#a0522d,#cd853f)",
+    Clothing: "linear-gradient(135deg,#457b9d,#1d3557)",
+    Misc: "linear-gradient(135deg,#ef476f,#f78c6b)",
+  };
+
+  const CATEGORY_ICONS: Record<string, string> = {
+    Books: "\u{1F4D7}",
+    Electronics: "\u{1F4BB}",
+    Furniture: "\u{1FA91}",
+    Clothing: "\u{1F9E5}",
+    Misc: "\u{1F4E6}",
+  };
+
+  function timeAgo(dateStr: string): string {
+    const now = Date.now();
+    const then = new Date(dateStr).getTime();
+    const diff = now - then;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
+    const days = Math.floor(hrs / 24);
+    if (days < 30) return `${days}d ago`;
+    const months = Math.floor(days / 30);
+    return months < 12 ? `${months}mo ago` : `${Math.floor(months / 12)}y ago`;
+  }
+
+  function renderStars(rating: number): string {
+    return Array.from({ length: 5 }, (_, i) =>
+      `<span class="${i < Math.round(rating) ? 'text-amber-400' : 'text-muted-foreground'}" style="font-size:1rem;">` +
+      (i < Math.floor(rating) ? '\u2605' : (i < rating ? '\u2605' : '\u2606')) +
+      '</span>'
+    ).join('');
+  }
+
+  function renderStarsPlain(rating: number): string {
+    const full = Math.floor(rating);
+    const empty = 5 - full;
+    return "\u2605".repeat(full) + "\u2606".repeat(empty);
+  }
+
+  async function loadItem() {
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+
+    if (!id) {
+      showError();
+      return;
+    }
+
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    const currentUserId = user?.id ?? null;
+
+    try {
+      const item = await fetchListing(id);
+
+      // Breadcrumb
+      const breadcrumbCategory = document.getElementById("breadcrumbCategory");
+      const breadcrumbTitle = document.getElementById("breadcrumbTitle");
+      if (breadcrumbCategory) {
+        breadcrumbCategory.textContent = item.category;
+        breadcrumbCategory.setAttribute("href", `/marketplace?cat=${item.category}`);
+      }
+      if (breadcrumbTitle) breadcrumbTitle.textContent = item.title;
+
+      // Title & price
+      document.getElementById("itemTitle")!.textContent = item.title;
+      const itemPriceElement = document.getElementById("itemPrice")!;
+      if (item.price === 0) {
+        itemPriceElement.textContent = "FREE";
+        itemPriceElement.classList.remove("text-primary");
+        itemPriceElement.classList.add("text-teal-600");
+      }
+      else {
+        itemPriceElement.textContent = `$${item.price.toFixed(2)}`;
+      }
+      document.getElementById("itemCondition")!.textContent = item.condition;
+      document.getElementById("itemDate")!.textContent = timeAgo(item.created_at);
+      document.getElementById("itemCategory")!.textContent = item.category;
+      document.getElementById("itemDescription")!.textContent = item.description;
+
+      // Status badge
+      const statusBadge = document.getElementById("itemStatusBadge")!;
+      const statusColor = item.status === "available" ? "success" : item.status === "sold" ? "error" : "warning";
+      statusBadge.innerHTML = `<span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border border-${statusColor} text-${statusColor} capitalize">${item.status}</span>`;
+      
+      if (item.price === 0) {
+        const giveawayBadge = document.createElement("span");
+        giveawayBadge.className = "inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide bg-teal-500/10 text-teal-600 border border-teal-200";
+        giveawayBadge.innerHTML = "🎁 Giveaway";
+        document.getElementById("itemStatusBadge")!.parentElement!.appendChild(giveawayBadge);
+      }
+
+      // Badges row
+      const badgeRow = document.getElementById("badgeRow")!;
+      badgeRow.innerHTML = `
+        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold border border-border text-foreground">${item.category}</span>
+        <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-primary bg-primary/10">${item.condition}</span>
+      `;
+
+      // Seller info
+      const sellerName = item.seller_name || "Seller";
+      document.getElementById("sellerName")!.textContent = sellerName;
+      const initials = sellerName.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
+      document.getElementById("sellerInitials")!.textContent = initials || "?";
+      const sellerProfileLink = document.getElementById("sellerProfileLink");
+      if (sellerProfileLink) {
+        sellerProfileLink.setAttribute("href", `/user?id=${item.user_id}`);
+      }
+
+      // ── Seller rating (links to /reviews page) ───────────
+      try {
+        const rating = await fetchSellerRating(item.user_id);
+        const sellerRatingEl = document.getElementById("sellerRating");
+        if (sellerRatingEl && rating.count > 0) {
+          sellerRatingEl.innerHTML = `<a href="/reviews?id=${item.user_id}" class="inline-flex items-center gap-1 hover:underline transition-colors"><span class="text-amber-400">${renderStarsPlain(rating.average)}</span> <span class="font-bold">${rating.average}</span> <span class="text-muted-foreground">(${rating.count} review${rating.count !== 1 ? "s" : ""})</span></a>`;
+        } else if (sellerRatingEl) {
+          sellerRatingEl.innerHTML = `<a href="/reviews?id=${item.user_id}" class="text-muted-foreground hover:underline">No ratings yet</a>`;
+        }
+      } catch (e) {
+        console.error("Failed to load seller rating:", e);
+      }
+
+      const msgHref = `/messages?to=${item.user_id}&listing=${item.id}`;
+      const sellerCardMsgBtn = document.getElementById("sellerCardMsgBtn");
+      const actionMsgBtn = document.getElementById("actionMsgBtn");
+      if (sellerCardMsgBtn) sellerCardMsgBtn.setAttribute("href", msgHref);
+      if (actionMsgBtn) actionMsgBtn.setAttribute("href", msgHref);
+      
+      if (item.open_to_offers && item.status === "available") {
+        if (sellerCardMsgBtn) {
+          sellerCardMsgBtn.textContent = "Make an Offer";
+          sellerCardMsgBtn.classList.add("border-violet-300", "text-violet-600", "hover:bg-violet-50", "hover:border-violet-400");
+          sellerCardMsgBtn.classList.remove("border-border");
+        }
+        
+        if (actionMsgBtn) {
+          actionMsgBtn.innerHTML = `
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Make an Offer
+          `;
+          
+          actionMsgBtn.classList.remove("bg-primary", "hover:bg-primary-accent");
+          actionMsgBtn.classList.add("bg-violet-600", "hover:bg-violet-700");
+        }
+        
+        const priceRow = document.getElementById("itemPrice")!.parentElement!;
+        const offersBadge = document.createElement("span");
+        offersBadge.className = "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide bg-violet-500/10 text-violet-600 border border-violet-200";
+        offersBadge.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          Open to Offers
+        `;
+        
+        priceRow.appendChild(offersBadge);
+      }
+
+      // Hide Message Seller buttons if current user IS the seller
+      if (currentUserId && currentUserId === item.user_id) {
+        if (sellerCardMsgBtn) sellerCardMsgBtn.style.display = "none";
+        if (actionMsgBtn) actionMsgBtn.style.display = "none";
+      }
+
+      // Fav button
+      const favBtn = document.getElementById("favBtn");
+      if (favBtn) favBtn.setAttribute("data-id", item.id);
+
+      // Gallery
+      const gradient = CATEGORY_GRADIENTS[item.category] || "linear-gradient(135deg,#6b7280,#9ca3af)";
+      const icon = CATEGORY_ICONS[item.category] || "\u{1F4E6}";
+      const mainImage = document.getElementById("mainImage")!;
+      const thumbStrip = document.getElementById("thumbStrip")!;
+
+      if (item.images && item.images.length > 0) {
+        mainImage.style.background = "#f1f5f9";
+        mainImage.innerHTML = `<img src="${item.images[0]}" alt="${item.title}" class="w-full h-full object-cover" />`;
+
+        thumbStrip.innerHTML = item.images.map((img: string, i: number) => `
+          <button type="button" class="thumb-btn flex-1 aspect-square rounded-lg overflow-hidden transition-all ${i === 0 ? "ring-2 ring-primary" : "opacity-60 hover:opacity-100"} border border-border">
+            <img src="${img}" alt="Thumb ${i + 1}" class="w-full h-full object-cover" />
+          </button>
+        `).join("");
+
+        thumbStrip.querySelectorAll(".thumb-btn").forEach((btn, i) => {
+          btn.addEventListener("click", () => {
+            mainImage.innerHTML = `<img src="${item.images[i]}" alt="${item.title}" class="w-full h-full object-cover" />`;
+            thumbStrip.querySelectorAll(".thumb-btn").forEach((b, j) => {
+              if (j === i) {
+                b.classList.add("ring-2", "ring-primary");
+                b.classList.remove("opacity-60");
+              } else {
+                b.classList.remove("ring-2", "ring-primary");
+                b.classList.add("opacity-60");
+              }
+            });
+          });
+        });
+      } else {
+        mainImage.style.background = gradient;
+        mainImage.innerHTML = `<span class="text-7xl">${icon}</span>`;
+      }
+
+      document.getElementById("loadingState")!.classList.add("hidden");
+      document.getElementById("itemContent")!.classList.remove("hidden");
+
+      // ── Report Section ─────────────────────────────────────────────────
+      const reportSubmitBtn = document.getElementById("reportSubmitBtn");
+      reportSubmitBtn?.addEventListener("click", async () => {
+        const reason = (document.getElementById("reportReason") as HTMLSelectElement)?.value;
+        const details = (document.getElementById("reportDetails") as HTMLTextAreaElement)?.value;
+        const reportStatus = document.getElementById("reportStatus")!;
+
+        if (!currentUserId) {
+          window.location.href = "/login";
+          return;
+        }
+
+        if (currentUserId === item.user_id) {
+          reportStatus.innerHTML = `<p class="text-sm text-error font-semibold">You cannot report your own listing.</p>`;
+          return;
+        }
+
+        try {
+          (reportSubmitBtn as HTMLButtonElement).disabled = true;
+          reportSubmitBtn!.textContent = "Submitting...";
+          await submitReport(id, currentUserId, reason, details || undefined);
+
+          reportStatus.innerHTML = `<p class="text-sm text-success font-semibold">Report submitted. Thank you for helping keep our community safe.</p>`;
+          reportSubmitBtn!.textContent = "Report Submitted";
+
+          // Also show a toast notification
+          try { toast.success("Report submitted. Thank you for helping keep our community safe."); } catch (_) {}
+        } catch (err: any) {
+          const msg = err?.message || "Failed to submit report.";
+          reportStatus.innerHTML = `<p class="text-sm text-error font-semibold">${msg}</p>`;
+          (reportSubmitBtn as HTMLButtonElement).disabled = false;
+          reportSubmitBtn!.textContent = "Submit Report";
+
+          try { toast.error(msg); } catch (_) {}
+        }
+      });
+
+      // ── Review Section ────────────────────
+      if (item.status === "sold") {
+        const reviewSection = document.getElementById("reviewSection")!;
+        reviewSection.classList.remove("hidden");
+
+        async function loadReviews() {
+          const reviewsList = document.getElementById("reviewsList")!;
+          const noReviews = document.getElementById("noReviews")!;
+          try {
+            const reviews = await fetchListingReviews(item.user_id);
+            if (reviews.length === 0) {
+              reviewsList.innerHTML = "";
+              noReviews.classList.remove("hidden");
+            } else {
+              noReviews.classList.add("hidden");
+              reviewsList.innerHTML = reviews.map(r => {
+                const typeLabel = r.review_type === "buyer_to_seller"
+                  ? `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-blue-500/10 text-blue-600 border border-blue-200">Buyer \u2192 Seller</span>`
+                  : `<span class="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide bg-emerald-500/10 text-emerald-600 border border-emerald-200">Seller \u2192 Buyer</span>`;
+                const reviewerInitials = (r.reviewer_name || "?").split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2);
+                return `
+                  <div class="p-4 rounded-lg border border-border bg-card">
+                    <div class="flex items-start justify-between mb-2">
+                      <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">${reviewerInitials}</div>
+                        <div>
+                          <span class="text-sm font-bold text-foreground">${r.reviewer_name || "Anonymous"}</span>
+                          <span class="text-xs text-muted-foreground ml-2">${timeAgo(r.created_at)}</span>
+                        </div>
+                      </div>
+                      ${typeLabel}
+                    </div>
+                    <div class="flex items-center gap-1 mb-1">
+                      <span class="text-amber-400">${renderStarsPlain(r.rating)}</span>
+                    </div>
+                    ${r.comment ? `<p class="text-sm text-muted-foreground">${r.comment}</p>` : ""}
+                  </div>
+                `;
+              }).join("");
+            }
+            return reviews;
+          } catch (e) {
+            console.error("Failed to load reviews:", e);
+            return [];
+          }
+        }
+
+        await loadReviews();
+
+        if (currentUserId) {
+          const alreadyReviewed = await hasReviewed(id, currentUserId);
+
+          if (!alreadyReviewed) {
+            const isSeller = currentUserId === item.user_id;
+            let canReview = false;
+            let reviewType: "buyer_to_seller" | "seller_to_buyer" = "buyer_to_seller";
+            let reviewedUserId = "";
+            let reviewLabel = "Leave a Review";
+
+            if (!isSeller) {
+              canReview = true;
+              reviewType = "buyer_to_seller";
+              reviewedUserId = item.user_id;
+              reviewLabel = "Rate the Seller";
+            } else {
+              try {
+                const { data: convos } = await supabase
+                  .from("conversations")
+                  .select("buyer_id")
+                  .eq("listing_id", id)
+                  .eq("seller_id", currentUserId);
+
+                if (convos && convos.length > 0) {
+                  reviewedUserId = convos[0].buyer_id;
+                  canReview = true;
+                  reviewType = "seller_to_buyer";
+                  reviewLabel = "Rate the Buyer";
+                }
+              } catch (e) {
+                console.error("Failed to find buyer for review:", e);
+              }
+            }
+
+            if (canReview) {
+              const reviewForm = document.getElementById("reviewForm")!;
+              reviewForm.classList.remove("hidden");
+
+              const formHeading = reviewForm.querySelector("h3");
+              if (formHeading) formHeading.textContent = reviewLabel;
+
+              let selectedRating = 0;
+              const starBtns = document.querySelectorAll<HTMLButtonElement>("#starSelector .star-btn");
+              const starLabel = document.getElementById("starLabel")!;
+
+              starBtns.forEach((btn) => {
+                btn.addEventListener("click", () => {
+                  selectedRating = parseInt(btn.getAttribute("data-star") || "0");
+                  starLabel.textContent = `${selectedRating} of 5`;
+                  starBtns.forEach((b) => {
+                    const val = parseInt(b.getAttribute("data-star") || "0");
+                    if (val <= selectedRating) {
+                      b.classList.remove("text-muted-foreground");
+                      b.classList.add("text-amber-400");
+                    } else {
+                      b.classList.add("text-muted-foreground");
+                      b.classList.remove("text-amber-400");
+                    }
+                  });
+                });
+              });
+
+              const reviewSubmitBtn = document.getElementById("reviewSubmitBtn")!;
+              reviewSubmitBtn.addEventListener("click", async () => {
+                const reviewStatus = document.getElementById("reviewStatus")!;
+                if (selectedRating === 0) {
+                  reviewStatus.innerHTML = `<p class="text-sm text-error">Please select a star rating.</p>`;
+                  return;
+                }
+                const comment = (document.getElementById("reviewComment") as HTMLTextAreaElement)?.value;
+                const reviewerName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Anonymous";
+
+                try {
+                  (reviewSubmitBtn as HTMLButtonElement).disabled = true;
+                  reviewSubmitBtn.textContent = "Submitting...";
+                  await submitReview(
+                    id,
+                    currentUserId,
+                    reviewedUserId,
+                    item.user_id,
+                    selectedRating,
+                    reviewType,
+                    reviewerName,
+                    comment || undefined
+                  );
+                  reviewStatus.innerHTML = `<p class="text-sm text-success font-semibold">Review submitted! Thank you.</p>`;
+                  reviewSubmitBtn.textContent = "Review Submitted \u2713";
+                  await loadReviews();
+                } catch (err: any) {
+                  const msg = err?.message || "Failed to submit review.";
+                  reviewStatus.innerHTML = `<p class="text-sm text-error font-semibold">${msg}</p>`;
+                  (reviewSubmitBtn as HTMLButtonElement).disabled = false;
+                  reviewSubmitBtn.textContent = "Submit Review";
+                }
+              });
+            }
+          }
+        }
+      }
+
+    } catch (err) {
+      console.error("Failed to load item:", err);
+      showError();
+    }
+  }
+
+  function showError() {
+    document.getElementById("loadingState")!.classList.add("hidden");
+    document.getElementById("errorState")!.classList.remove("hidden");
+  }
+
+  loadItem();
+</script>
